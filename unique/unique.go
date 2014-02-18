@@ -25,6 +25,7 @@ func Main(fileList []string) {
 	if len(fileList) == 0 {
 		fmt.Println(Usage)
 	} else {
+		fileList = utils.SetString(fileList) // unique values
 		chs := make([]chan int, len(fileList))
 		for i, f := range fileList {
 			chs[i] = make(chan int)
@@ -59,21 +60,25 @@ func Unique(fileName string, ch chan int) {
 	f, err := os.Open(fileName)
 	if err != nil {
 		fmt.Println(err)
+		ch <- 1
 		return
 	}
 	uni_out, err := os.Create(uni_out_p)
 	if err != nil {
 		fmt.Println(err)
+		ch <- 1
 		return
 	}
 	dup_out, err := os.Create(dup_out_p)
 	if err != nil {
 		fmt.Println(err)
+		ch <- 1
 		return
 	}
 	sta_out, err := os.Create(sta_out_p)
 	if err != nil {
 		fmt.Println(err)
+		ch <- 1
 		return
 	}
 
@@ -88,7 +93,7 @@ func Unique(fileName string, ch chan int) {
 		os.Stdout.WriteString(fmt.Sprintf("output: %s\n", dup_out_p))
 		os.Stdout.WriteString(fmt.Sprintf("output: %s\n", sta_out_p))
 		ch <- 1 // Send finish signal
-		//close(ch)
+		close(ch)
 	}()
 
 	// main
